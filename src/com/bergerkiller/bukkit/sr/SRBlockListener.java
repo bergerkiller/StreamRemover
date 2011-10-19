@@ -13,10 +13,10 @@ public class SRBlockListener extends BlockListener {
 	public void onBlockFromTo(BlockFromToEvent event) {
 		if (!event.isCancelled()) {
 			Block b = event.getToBlock();
-			if (b.getTypeId() == 0) {
+			if (true) {
 				Block f = event.getBlock();
 				int fid = f.getTypeId();
-				if (fid == 9 || (allowLava && fid == 11)) {
+				if (f.getData() == 0 && (fid == 9 || (allowLava && fid == 11))) {
 					//check surrounding blocks: 2 are water?
 					//ignore the from block (we know it is water)
 					for (BlockFace face : new BlockFace[] {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST}) {
@@ -28,11 +28,13 @@ public class SRBlockListener extends BlockListener {
 								}
 							}
 						}
-						int rid = r.getTypeId();
-						if (rid == 8 || (allowLava && rid == 10)) {
-							event.getToBlock().setTypeId(fid, true);
-							event.setCancelled(true);
-							break;
+						if (r.getData() == 0) {
+							int rid = r.getTypeId();
+							if (rid == 8 || (allowLava && rid == 10)) {
+								event.getToBlock().setTypeId(fid, true);
+								event.setCancelled(true);
+								break;
+							}
 						}
 					}
 				}
