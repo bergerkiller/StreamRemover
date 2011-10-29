@@ -5,21 +5,21 @@ import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 
 public class StreamRemover extends JavaPlugin {
 	private final SRBlockListener blockListener = new SRBlockListener();
 			
+	private Configuration config;
+	
 	public void onEnable() {		
 		//General registering
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Priority.Highest, this);
 
 		//Settings
-		Configuration config = getConfiguration();
-		blockListener.allowLava = config.getBoolean("allowLava", false);
-		config.setProperty("allowLava", blockListener.allowLava);
-		config.save();
+		this.config = new Configuration(this);
+		blockListener.allowLava = this.config.add("allowLava", false);
+		this.config.init();
 		
         //final msg
         PluginDescriptionFile pdfFile = this.getDescription();

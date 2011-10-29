@@ -1,5 +1,5 @@
 name: Stream Remover
 main: com.bergerkiller.bukkit.sr.StreamRemover
-version: 1.01
+version: 1.02
 author: bergerkiller
 description: Plugin that prevents the formation of annoyign water streams
