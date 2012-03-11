@@ -1,32 +1,33 @@
 package com.bergerkiller.bukkit.sr;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.command.CommandSender;
 
-public class StreamRemover extends JavaPlugin {
-	private final SRBlockListener blockListener = new SRBlockListener();
-			
-	private Configuration config;
+import com.bergerkiller.bukkit.common.config.FileConfiguration;
+import com.bergerkiller.bukkit.common.PluginBase;
+
+public class StreamRemover extends PluginBase {
 	
-	public void onEnable() {		
+	public void enable() {		
 		//General registering
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Priority.Highest, this);
+		SRListener listener = new SRListener();
+		this.register(listener);
 
 		//Settings
-		this.config = new Configuration(this);
-		blockListener.allowLava = this.config.add("allowLava", false);
-		this.config.init();
-		
-        //final msg
-        PluginDescriptionFile pdfFile = this.getDescription();
-        System.out.println(pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+		FileConfiguration config = new FileConfiguration(this);
+		config.load();
+		listener.allowLava = config.get("allowLava", false);
+		config.save();
 	}
-	public void onDisable() {
-		System.out.println("Stream Remover disabled!");
+	public void disable() {
+		
+	}
+
+	public boolean command(CommandSender sender, String command, String[] args) {
+		return true;
+	}
+	
+	@Override
+	public void permissions() {
 	}
 	
 	
