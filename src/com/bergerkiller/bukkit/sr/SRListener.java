@@ -7,6 +7,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
 
+import com.bergerkiller.bukkit.common.utils.FaceUtil;
+
 public class SRListener implements Listener {
 
 	public boolean allowLava;
@@ -21,7 +23,7 @@ public class SRListener implements Listener {
 				if (f.getData() == 0 && (fid == 9 || (allowLava && fid == 11))) {
 					//check surrounding blocks: 2 are water?
 					//ignore the from block (we know it is water)
-					for (BlockFace face : new BlockFace[] {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST}) {
+					for (BlockFace face : FaceUtil.axis) {
 						Block r = b.getRelative(face);
 						if (f.getX() == r.getX()) {
 							if (f.getY() == r.getY()) {
