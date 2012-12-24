@@ -1,5 +1,6 @@
 package com.bergerkiller.bukkit.sr;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -7,43 +8,52 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
 
-import com.bergerkiller.bukkit.common.utils.FaceUtil;
-
 public class SRListener implements Listener {
+	private static final BlockFace[] AXIS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
 
-	public boolean allowLava;
-	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	private static boolean isValidGoal(Block block) {
+		final int id = block.getTypeId();
+		if (id == Material.AIR.getId()) {
+			return true;
+		}
+		if (id == Material.WATER.getId() || id == Material.LAVA.getId()) {
+			return block.getData() != 0;
+		}
+		return false;
+	}
+
+	private static boolean isValidSource(Block block) {
+		// Is a source block? Check data
+		if (block.getData() == 0) {
+			final int id = block.getTypeId();
+			if (id == Material.WATER.getId() || id == Material.STATIONARY_WATER.getId()) {
+				return true;
+			}
+			if (StreamRemover.allowLava && (id == Material.LAVA.getId() || id == Material.STATIONARY_LAVA.getId())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBlockFromTo(BlockFromToEvent event) {
-		if (!event.isCancelled()) {
-			Block b = event.getToBlock();
-			if (b.getTypeId() == 0) {
-				Block f = event.getBlock();
-				int fid = f.getTypeId();
-				if (f.getData() == 0 && (fid == 9 || (allowLava && fid == 11))) {
-					//check surrounding blocks: 2 are water?
-					//ignore the from block (we know it is water)
-					for (BlockFace face : FaceUtil.axis) {
-						Block r = b.getRelative(face);
-						if (f.getX() == r.getX()) {
-							if (f.getY() == r.getY()) {
-								if (f.getZ() == r.getZ()) {
-									continue;
-								}
-							}
-						}
-						if (r.getData() == 0) {
-							int rid = r.getTypeId();
-							if (rid == 8 || (allowLava && rid == 10)) {
-								event.getToBlock().setTypeId(fid, true);
-								event.setCancelled(true);
-								break;
-							}
-						}
-					}
+		Block from = event.getBlock();
+		Block to = event.getToBlock();
+		// Flowing from a stationary source towards air?
+		if (isValidGoal(to) && isValidSource(from)) {
+			//check surrounding blocks: 2 are water?
+			//ignore the from block (we know it is water)
+			for (BlockFace face : AXIS) {
+				if (face == event.getFace().getOppositeFace()) {
+					continue;
+				}
+				if (isValidSource(to.getRelative(face))) {
+					event.getToBlock().setTypeId(from.getTypeId(), true);
+					event.setCancelled(true);
+					break;
 				}
 			}
 		}
 	}
-	
 }

@@ -1,34 +1,29 @@
 package com.bergerkiller.bukkit.sr;
 
-import org.bukkit.command.CommandSender;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import com.bergerkiller.bukkit.common.config.FileConfiguration;
-import com.bergerkiller.bukkit.common.PluginBase;
+public class StreamRemover extends JavaPlugin {
+	public static boolean allowLava = false;
 
-public class StreamRemover extends PluginBase {
-	
-	public void enable() {		
+	@Override
+	public void onEnable() {
 		//General registering
-		SRListener listener = new SRListener();
-		this.register(listener);
+		Bukkit.getPluginManager().registerEvents(new SRListener(), this);
 
 		//Settings
-		FileConfiguration config = new FileConfiguration(this);
-		config.load();
-		listener.allowLava = config.get("allowLava", false);
-		config.save();
-	}
-	public void disable() {
-		
+		FileConfiguration config = this.getConfig();
+		if (config.contains("allowLava")) {
+			allowLava = config.getBoolean("allowLava");
+		} else {
+			config.set("allowLava", allowLava);
+		}
+		this.saveConfig();
 	}
 
-	public boolean command(CommandSender sender, String command, String[] args) {
-		return true;
-	}
-	
 	@Override
-	public void permissions() {
+	public void onDisable() {
+		
 	}
-	
-	
 }
